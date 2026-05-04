@@ -13,8 +13,6 @@ on:
       - "data/**"
       - "scripts/**"
       - "package.json"
-      - ".nvmrc"
-      - ".node-version"
       - ".github/workflows/static-pages.yml"
   workflow_dispatch:
 
@@ -27,18 +25,19 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: "22.x"
-
-      - name: Pin npm version
-        run: npm i -g npm@10.9.0
+          node-version: "lts/*"
+          check-latest: true
 
       - name: Show Node versions
         run: |
@@ -48,7 +47,17 @@ jobs:
       - name: Build static site
         run: npm run build
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Verify generated HTML
+        run: |
+          test -f dist/index.html
+          ! grep -R 'js/common.js' dist
+          ! grep -R 'js/talks.js' dist
+          ! grep -R 'js/timetable.js' dist
+          ! grep -R '第XXX回XX祭' dist
+          ! grep -R 'XXXX年X月XX日' dist
+          ! grep -R '会場未定' dist
+
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 

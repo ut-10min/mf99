@@ -5,8 +5,7 @@
     "serve:dist": "npx serve dist"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=22"
   },
-  "packageManager": "npm@10.9.0",
   "devDependencies": {}
 }
