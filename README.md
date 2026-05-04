@@ -1,6 +1,6 @@
-# mf99 website draft
+# mf99 website
 
-GitHub Pages で `mf99/` 配下に置く想定の最小構成です。
+GitHub Pages で `mf99/` 配下に置いた構成です。
 
 主に毎回編集するファイル:
 - data/config.json: 外部リンク、日付、会場、SNS、動画、地図
@@ -19,15 +19,13 @@ GitHub Pages で `mf99/` 配下に置く想定の最小構成です。
 
 ## data/config.json の整理方針
 
-`config.json` には、HTML内に直接書くと重複・更新漏れが起きやすい情報だけを置いています。
+`config.json` には、HTML内に直接書くと重複・更新漏れが起きやすい情報を置いています。
 
 - 開催日時
 - 会場名・住所
 - 外部リンク
 - SNSリンク
 - 運営統括・運営メンバー
-
-イベント説明文、参加方法の本文、問い合わせ説明文など、HTML上で読めた方が保守しやすい文章は `index.html` に残しています。
 
 
 ## HTML内の仮表示とconfigの関係
@@ -51,15 +49,3 @@ npm run build
 ```
 
 静的ビルドでは、`data/config.json`, `data/talks.json`, `data/schedule.json` の内容をHTMLへ事前反映します。YouTube と Google Map の iframe 生成だけは `dist/js/embed-runtime.js` に残します。
-
-## Node.js のバージョン固定
-
-長期保守のため、Node.js は LTS 系の `22.x` に固定しています。
-
-- `.nvmrc`: `22`
-- `.node-version`: `22`
-- `package.json` の `engines.node`: `22.x`
-- GitHub Actions の `setup-node`: `22.x`
-- npm: `10.9.0`
-
-ビルドスクリプトは Node.js の標準ライブラリだけを使い、外部 npm パッケージに依存しません。
