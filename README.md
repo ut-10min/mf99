@@ -41,3 +41,25 @@ HTML内には実データを重複して書かず、以下のような仮表示�
 - URL: `href="#"`
 
 JavaScriptが正常に動くと、configの値が優先されます。JavaScriptが動かない場合は、HTML内の仮表示がそのまま表示されます。
+
+## Node.js による静的ビルド
+
+通常の開発では、これまで通りルート直下の `index.html`, `talks.html`, `timetable.html` をそのまま使えます。Node.js を使える環境では、以下で `dist/` に静的HTMLを生成できます。
+
+```bash
+npm run build
+```
+
+静的ビルドでは、`data/config.json`, `data/talks.json`, `data/schedule.json` の内容をHTMLへ事前反映します。YouTube と Google Map の iframe 生成だけは `dist/js/embed-runtime.js` に残します。
+
+## Node.js のバージョン固定
+
+長期保守のため、Node.js は LTS 系の `22.x` に固定しています。
+
+- `.nvmrc`: `22`
+- `.node-version`: `22`
+- `package.json` の `engines.node`: `22.x`
+- GitHub Actions の `setup-node`: `22.x`
+- npm: `10.9.0`
+
+ビルドスクリプトは Node.js の標準ライブラリだけを使い、外部 npm パッケージに依存しません。

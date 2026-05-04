@@ -1,0 +1,63 @@
+name: Build and deploy static Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "talks.html"
+      - "timetable.html"
+      - "css/**"
+      - "img/**"
+      - "js/**"
+      - "data/**"
+      - "scripts/**"
+      - "package.json"
+      - ".nvmrc"
+      - ".node-version"
+      - ".github/workflows/static-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
+      - name: Pin npm version
+        run: npm i -g npm@10.9.0
+
+      - name: Show Node versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Build static site
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
