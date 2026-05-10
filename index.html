@@ -87,7 +87,7 @@
           <p class="section-note">動画URLを data/config.json に設定してください。</p>
         </div>
         <div class="movie-sns-block">
-<p class="section-note sns-note">各種の公式SNSはこちらからどうぞ！感想等は <b>#ut10min</b> をつけて呟いてください。</p>
+<p class="section-note sns-note">各種の公式SNSはこちらからどうぞ！感想等は <b>#ut10min</b> をつけて呟いて下さい。</p>
           <p class="center socialicons" id="socialicons">
             <a data-sns="x" href="#" target="_blank" rel="noopener" aria-label="X">
               <img src="img/x.png" alt="X">
@@ -170,5 +170,94 @@
   </div>
 
   <script src="js/common.js"></script>
+
+  <script>
+    (function () {
+      function extractYouTubeId(url) {
+        try {
+          const parsed = new URL(url, window.location.href);
+          if (parsed.hostname.includes("youtu.be")) {
+            return parsed.pathname.split("/").filter(Boolean)[0] || "";
+          }
+          if (parsed.searchParams.get("v")) {
+            return parsed.searchParams.get("v");
+          }
+          const embedMatch = parsed.pathname.match(/\/embed\/([^/?#]+)/);
+          if (embedMatch) {
+            return embedMatch[1];
+          }
+        } catch (error) {
+          return "";
+        }
+        return "";
+      }
+
+      function buildFacade(container, videoId) {
+        if (!container || !videoId || container.dataset.facadeReady === "true") return;
+        container.dataset.facadeReady = "true";
+        container.classList.add("youtube-facade");
+        container.textContent = "";
+
+        const button = document.createElement("button");
+        button.className = "youtube-load";
+        button.type = "button";
+        button.dataset.youtubeId = videoId;
+        button.setAttribute("aria-label", "紹介動画を再生する");
+
+        const img = document.createElement("img");
+        img.src = "https://i.ytimg.com/vi/" + encodeURIComponent(videoId) + "/maxresdefault.jpg";
+        img.width = 1280;
+        img.height = 720;
+        img.loading = "eager";
+        img.decoding = "async";
+        img.alt = "紹介動画のサムネイル";
+        img.onerror = function () {
+          img.onerror = null;
+          img.src = "https://i.ytimg.com/vi/" + encodeURIComponent(videoId) + "/hqdefault.jpg";
+          img.classList.add("is-four-three-thumbnail");
+        };
+
+        const play = document.createElement("span");
+        play.className = "youtube-play";
+        play.setAttribute("aria-hidden", "true");
+        play.textContent = "▶";
+
+        button.appendChild(img);
+        button.appendChild(play);
+        container.appendChild(button);
+      }
+
+      function setupYouTubeFacade() {
+        const container = document.getElementById("video-container");
+        if (!container || container.dataset.facadeReady === "true") return;
+
+        const iframe = container.querySelector("iframe");
+        if (!iframe) return;
+
+        const videoId = extractYouTubeId(iframe.getAttribute("src") || "");
+        buildFacade(container, videoId);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        setupYouTubeFacade();
+        window.setTimeout(setupYouTubeFacade, 250);
+        window.setTimeout(setupYouTubeFacade, 1000);
+      });
+
+      document.addEventListener("click", function (event) {
+        const button = event.target.closest(".youtube-load");
+        if (!button) return;
+
+        const iframe = document.createElement("iframe");
+        iframe.src = "https://www.youtube.com/embed/" + encodeURIComponent(button.dataset.youtubeId) + "?autoplay=1";
+        iframe.title = "YouTube video player";
+        iframe.loading = "lazy";
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen";
+        iframe.allowFullscreen = true;
+
+        button.replaceWith(iframe);
+      });
+    })();
+  </script>
 </body>
 </html>
