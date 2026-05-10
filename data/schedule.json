@@ -59,7 +59,7 @@
     "start": "12:00",
     "end": "13:00",
     "talkId": "speaker-十河翔",
-    "speaker": "十河 翔",
+    "speaker": "十河翔(SOGO SHO)",
     "type": "talk"
   },
   {
@@ -122,7 +122,7 @@
     "start": "15:00",
     "end": "15:20",
     "talkId": "speaker-安藤靖",
-    "speaker": "安藤靖",
+    "speaker": "あんどうやすし",
     "type": "talk"
   },
   {
@@ -257,7 +257,7 @@
     "start": "12:00",
     "end": "13:00",
     "talkId": "speaker-十河翔",
-    "speaker": "十河 翔",
+    "speaker": "十河翔(SOGO SHO)",
     "type": "talk"
   },
   {
@@ -320,7 +320,7 @@
     "start": "15:00",
     "end": "15:20",
     "talkId": "speaker-安藤靖",
-    "speaker": "安藤靖",
+    "speaker": "あんどうやすし",
     "type": "talk"
   },
   {
@@ -356,7 +356,7 @@
     "start": "16:20",
     "end": "16:40",
     "talkId": "speaker-安藤靖",
-    "speaker": "安藤靖",
+    "speaker": "あんどうやすし",
     "type": "talk"
   },
   {
