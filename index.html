@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" data-meta-config="metaDescriptions.index" content="第XXX回XX祭企画ページです。">
   <title data-config="pageTitles.index">第XXX回XX祭｜10分で伝えます！東大研究最前線</title>
-  <link rel="preload" as="image" href="img/title_background.png" fetchpriority="high">
-  <link rel="preload" as="image" href="img/title.png" fetchpriority="high">
+  <link rel="preload" as="image" href="img/title_background.webp" type="image/webp" fetchpriority="high">
+  <link rel="preload" as="image" href="img/title.webp" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="css/main.css">
   <link rel="icon" href="img/favicon.ico">
 </head>
@@ -21,7 +21,10 @@
 
     <header id="title-hero">
       <div id="title-logo">
-        <img src="img/title.png" fetchpriority="high" decoding="async" alt="10分で伝えます！東大研究最前線">
+        <picture>
+          <source srcset="img/title.webp" type="image/webp">
+          <img src="img/title.png" width="1324" height="382" fetchpriority="high" decoding="async" alt="10分で伝えます！東大研究最前線">
+        </picture>
       </div>
       <p class="hero-label" data-config="labels.top">第XXX回XX祭 講演情報トップ</p>
     </header>
@@ -87,7 +90,7 @@
           <p class="section-note">動画URLを data/config.json に設定してください。</p>
         </div>
         <div class="movie-sns-block">
-<p class="section-note sns-note">各種の公式SNSはこちらからどうぞ！感想等は <b>#ut10min</b> をつけて呟いて下さい。</p>
+<p class="section-note sns-note">各種の公式SNSはこちらからどうぞ！感想等は <b>#ut10min</b> をつけて呟いてください。</p>
           <p class="center socialicons" id="socialicons">
             <a data-sns="x" href="#" target="_blank" rel="noopener" aria-label="X">
               <img src="img/x.png" alt="X">
