@@ -24,7 +24,8 @@
     "contactForm": "https://forms.gle/yDF9upZH6AzfChyFA",
     "googleMap": "https://maps.app.goo.gl/St9DsVoq5JvoLN61A",
     "mapEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3239.470268188464!2d139.75834607507562!3d35.71465132813866!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188c31d456c3b7%3A0x7e0c15037ed16d83!2z5belM-WPt-mkqOWbs-abuOWupCDmnbHkuqzlpKflrablt6Xlrabjg7vmg4XloLHnkIblt6Xlrablm7Pmm7jppKg!5e0!3m2!1sja!2sjp!4v1683867333748!5m2!1sja!2sjp",
-    "youtubeEmbed": "https://www.youtube.com/embed/mLT0P1CSfqg"
+    "youtubeEmbed": "https://www.youtube.com/embed/mLT0P1CSfqg",
+    "surveyForm": "https://docs.google.com/forms/d/e/1FAIpQLSfi3y2KBBixxtphIGMG-IBvt4Pu-QvzPE8lLYJg1ahQFPmWvQ/viewform?usp=dialog"
   },
   "sns": {
     "x": "https://twitter.com/ut10min",
@@ -34,6 +35,20 @@
   },
   "organizer": {
     "representative": "上杉佑人",
-    "members": ["梅村悠介","小林遼太郎","近藤勇仁","島袋航弥","田口晴翔","寺谷嘉泰","富田有香","平野力也","馬場崚","松本悠汰","矢部志織","山田江里子","鷲田樹音"]
+    "members": [
+      "梅村悠介",
+      "小林遼太郎",
+      "近藤勇仁",
+      "島袋航弥",
+      "田口晴翔",
+      "寺谷嘉泰",
+      "富田有香",
+      "平野力也",
+      "馬場崚",
+      "松本悠汰",
+      "矢部志織",
+      "山田江里子",
+      "鷲田樹音"
+    ]
   }
 }
