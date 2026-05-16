@@ -29,8 +29,9 @@ function durationLabel(item) {
 
 function slotContent(item, talkMap) {
   const minutes = durationMinutes(item);
-  const isLong = minutes >= 50;
-  const durationClass = isLong ? " is-long-slot" : "";
+  const isLong = minutes >= 45;
+  const isCancelled = item && item.status === "cancelled";
+  const durationClass = `${isLong ? " is-long-slot" : ""}${isCancelled ? " is-cancelled-slot" : ""}`;
 
   if (!item) {
     return "";
@@ -45,12 +46,21 @@ function slotContent(item, talkMap) {
     `;
   }
 
+  const statusBadge = isCancelled ? `<span class="status-badge status-cancelled">${item.statusLabel || "中止"}</span>` : "";
+  const statusNote = item.note ? `<p class="slot-status-note${isCancelled ? "" : " slot-status-note-pending"}">${item.note}</p>` : "";
+
   const talk = talkMap[item.talkId];
   if (!talk) {
     return `
       <div class="slot-card slot-detail-card${durationClass}">
         <span class="duration-badge">${durationLabel(item)}</span>
-        <div class="break-slot">講演情報未設定</div>
+        ${statusBadge}
+        <div class="slot-detail-inner">
+          <span class="slot-detail-title">${item.title || "講演タイトル未定"}</span>
+          <span class="slot-detail-speaker"><b>講演者：</b>${item.speaker || "発表者未定"}</span>
+          ${statusNote}
+          <span class="slot-open-label">${isCancelled ? "中止" : "準備中"}</span>
+        </div>
       </div>
     `;
   }
@@ -58,11 +68,13 @@ function slotContent(item, talkMap) {
   return `
     <div class="slot-card slot-detail-card${durationClass}">
       <span class="duration-badge">${durationLabel(item)}</span>
+      ${statusBadge}
       <div class="slot-detail-inner">
         <button class="talk-toggle" type="button" aria-expanded="false" aria-label="${talk.title} の詳細を開く">
           <span class="slot-detail-title">${talk.title}</span>
           <span class="slot-detail-speaker"><b>講演者：</b>${talk.speaker}</span>
-          <span class="slot-open-label">詳細を開く</span>
+          ${statusNote}
+          <span class="slot-open-label">${isCancelled ? "中止・詳細を開く" : "詳細を開く"}</span>
         </button>
         <div class="slot-detail" role="region" aria-label="${talk.title} の講演詳細">
           <p class="slot-detail-affiliation"><b>所属・専攻：</b>${talk.affiliation}｜${talk.field}</p>
@@ -77,38 +89,39 @@ function renderDesktop(schedule, talkMap) {
   const desktop = document.getElementById("timetable-desktop");
   if (!desktop) return;
 
-  const days = [...new Map(schedule.map((item) => [item.date, item.dateLabel])).entries()];
-  const times = [...new Set(schedule.map((item) => `${item.start}-${item.end}`))].sort();
+  const grouped = groupBy(schedule, (item) => item.date);
+  const days = Object.keys(grouped).map((date) => ({
+    date,
+    label: grouped[date][0].dateLabel
+  }));
 
-  const byDateTime = new Map();
-  schedule.forEach((item) => {
-    byDateTime.set(`${item.date}|${item.start}-${item.end}`, item);
-  });
+  desktop.innerHTML = days.map((day, index) => {
+    const items = grouped[day.date].sort((a, b) =>
+      `${a.start}-${a.end}`.localeCompare(`${b.start}-${b.end}`)
+    );
 
-  const thead = `
-    <thead>
+    const rows = items.map((item) => `
       <tr>
-        <th>時間</th>
-        ${days.map(([, label]) => `<th>${label}</th>`).join("")}
+        <th>${item.start}–${item.end}</th>
+        <td>${slotContent(item, talkMap)}</td>
       </tr>
-    </thead>
-  `;
+    `).join("");
 
-  const tbody = `
-    <tbody>
-      ${times.map((time) => `
-        <tr>
-          <th>${time.replace("-", "–")}</th>
-          ${days.map(([date]) => {
-            const item = byDateTime.get(`${date}|${time}`);
-            return `<td>${item ? slotContent(item, talkMap) : ""}</td>`;
-          }).join("")}
-        </tr>
-      `).join("")}
-    </tbody>
-  `;
-
-  desktop.innerHTML = `<table class="timetable-table timetable-table-enhanced">${thead}${tbody}</table>`;
+    return `
+      <div class="desktop-day-panel" data-date="${day.date}" ${index !== 0 ? "hidden" : ""}>
+        <h3 class="desktop-day-title">${day.label}</h3>
+        <table class="timetable-table timetable-table-enhanced timetable-table-single-day">
+          <thead>
+            <tr>
+              <th>時間</th>
+              <th>講演</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  }).join("");
 }
 
 function renderMobile(schedule, talkMap) {
@@ -160,6 +173,10 @@ function renderMobile(schedule, talkMap) {
     mobile.querySelectorAll(".mobile-day-panel").forEach((panel) => {
       panel.hidden = panel.dataset.date !== button.dataset.date;
     });
+
+    document.querySelectorAll(".desktop-day-panel").forEach((panel) => {
+      panel.hidden = panel.dataset.date !== button.dataset.date;
+    });
   });
 }
 
@@ -172,7 +189,10 @@ function setupDetailsToggle() {
     const label = button.querySelector(".slot-open-label");
     const isOpen = detail.classList.toggle("is-open");
     button.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    if (label) label.textContent = isOpen ? "詳細を閉じる" : "詳細を開く";
+    if (label) {
+      const cancelled = button.closest(".is-cancelled-slot");
+      label.textContent = isOpen ? "詳細を閉じる" : (cancelled ? "中止・詳細を開く" : "詳細を開く");
+    }
   });
 }
 

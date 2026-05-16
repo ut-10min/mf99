@@ -1,7 +1,7 @@
 function formatScheduleForTalk(schedule, talkId) {
   return schedule
     .filter((item) => item.talkId === talkId)
-    .map((item) => `${item.dateLabel} ${item.start}–${item.end}`)
+    .map((item) => `${item.dateLabel} ${item.start}–${item.end}${item.status === "cancelled" ? "（中止）" : ""}`)
     .join("、");
 }
 

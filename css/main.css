@@ -452,7 +452,7 @@ body {
 
 /* timetable */
 .day-tabs {
-  display: none;
+  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
@@ -2136,3 +2136,127 @@ body {
 }
 
 /* article-survey は問い合わせセクションと同じ .full-article / .button-link を使用する */
+
+/* 重要なお知らせ */
+.important-notice {
+  max-width: min(1120px, 100%);
+  margin: 18px auto 0;
+  padding: 22px clamp(18px, 4vw, 36px);
+  box-sizing: border-box;
+  background: #fff7f7;
+  border: 3px solid #c62828;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(198, 40, 40, 0.14);
+  color: #2c2f36;
+}
+
+.important-notice-kicker {
+  margin: 0 0 6px;
+  color: #b71c1c;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.important-notice h2 {
+  margin: 0 0 12px;
+  color: #b71c1c;
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  line-height: 1.35;
+}
+
+.important-notice p {
+  max-width: 900px;
+  margin: 8px 0 0;
+  font-size: 1.12rem;
+  line-height: 1.75;
+}
+
+.important-notice a {
+  color: var(--color-primitive-blue-900);
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* 中止講演の表示 */
+.slot-card.is-cancelled-slot {
+  border-color: #c62828 !important;
+  border-left-color: #c62828 !important;
+  background: #fff1f1 !important;
+}
+
+.slot-card.is-cancelled-slot .slot-detail-title,
+.slot-card.is-cancelled-slot .slot-detail-speaker {
+  color: #7f1d1d !important;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 0 8px 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: bold;
+}
+
+.status-cancelled {
+  background: #c62828;
+  color: #fff;
+}
+
+.slot-status-note {
+  max-width: none !important;
+  margin: 8px 0 0 !important;
+  color: #b71c1c;
+  font-size: 0.95rem !important;
+  font-weight: bold;
+  line-height: 1.5 !important;
+}
+
+.slot-card.is-cancelled-slot .slot-open-label {
+  background: #c62828;
+}
+
+@media screen and (max-width: 639px) {
+  .important-notice {
+    margin-top: 16px;
+    padding: 18px 16px;
+    border-radius: 14px;
+  }
+
+  .important-notice p {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+}
+
+/* PC版タイムテーブルも日付タブで1日ずつ表示する */
+.desktop-day-panel[hidden] {
+  display: none;
+}
+
+.desktop-day-title {
+  max-width: none !important;
+  margin: 0 0 16px !important;
+  color: var(--color-primitive-blue-1200);
+  text-align: center;
+}
+
+.timetable-table-single-day {
+  min-width: 0;
+}
+
+.timetable-table-single-day tbody th {
+  width: 9em;
+}
+
+.timetable-table-single-day td {
+  min-width: 0;
+}
+
+.slot-status-note-pending {
+  color: var(--color-primitive-blue-1200);
+  font-weight: normal;
+}
