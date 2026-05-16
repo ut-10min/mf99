@@ -200,6 +200,10 @@ function setupDetailsToggle() {
 
 async function renderTimetable() {
   try {
+    const legacyDesktop = document.getElementById("timetable-desktop");
+    if (legacyDesktop) {
+      legacyDesktop.remove();
+    }
     const [talks, schedule] = await Promise.all([
       loadJson("data/talks.json"),
       loadJson("data/schedule.json")
@@ -208,7 +212,6 @@ async function renderTimetable() {
     schedule.sort((a, b) => `${a.date} ${a.start}`.localeCompare(`${b.date} ${b.start}`));
     const talkMap = makeTalkMap(talks);
 
-    renderDesktop(schedule, talkMap);
     renderMobile(schedule, talkMap);
     setupDetailsToggle();
   } catch (error) {

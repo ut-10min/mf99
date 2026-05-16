@@ -2293,3 +2293,41 @@ body {
 .page-timetable .mobile-day-panel[hidden] {
   display: none !important;
 }
+
+/* タイムテーブルはPC/スマホ共通で日付タブ切り替えの単日表示に統一する。
+   旧PC版の2日横並びテーブルは使わない。 */
+.page-timetable .day-tabs {
+  display: flex !important;
+}
+
+.page-timetable .timetable-desktop {
+  display: none !important;
+}
+
+.page-timetable .timetable-mobile,
+.page-timetable .timetable-single-panel {
+  display: block !important;
+  max-width: min(920px, 100%);
+  margin: 24px auto 0;
+}
+
+.page-timetable .mobile-day-panel[hidden] {
+  display: none !important;
+}
+
+@media screen and (min-width: 761px) {
+  .page-timetable .mobile-slot {
+    display: grid;
+    grid-template-columns: 9em minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+    padding: 18px 20px;
+  }
+
+  .page-timetable .mobile-time {
+    margin-bottom: 0;
+    color: var(--color-primitive-blue-1200);
+    font-size: 1.05rem;
+    line-height: 1.4;
+  }
+}
