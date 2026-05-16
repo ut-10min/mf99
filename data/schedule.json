@@ -240,8 +240,7 @@
     "end": "10:15",
     "talkId": "speaker-中川果帆",
     "speaker": "中川果帆",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -250,8 +249,7 @@
     "end": "10:30",
     "talkId": "speaker-成田佳奈香",
     "speaker": "成田佳奈香",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -260,8 +258,7 @@
     "end": "10:45",
     "talkId": "speaker-梅村悠介",
     "speaker": "梅村悠介",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -270,8 +267,7 @@
     "end": "11:00",
     "talkId": "speaker-豊島慶大",
     "speaker": "豊島慶大",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -280,8 +276,7 @@
     "end": "11:15",
     "talkId": "speaker-岡田裕貴",
     "speaker": "岡田裕貴",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -290,8 +285,7 @@
     "end": "11:30",
     "talkId": "speaker-野口恒平",
     "speaker": "野口恒平",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -300,8 +294,7 @@
     "end": "11:45",
     "talkId": "speaker-勇崎颯太",
     "speaker": "勇崎颯太",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -310,8 +303,7 @@
     "end": "12:00",
     "talkId": "speaker-小林涼太郎",
     "speaker": "小林涼太郎",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -320,8 +312,7 @@
     "end": "12:45",
     "talkId": "speaker-十河翔",
     "speaker": "十河翔",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -330,18 +321,16 @@
     "end": "13:00",
     "talkId": "speaker-勝間田里菜",
     "speaker": "勝間田里菜",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
     "dateLabel": "5月17日（日）",
     "start": "13:00",
     "end": "13:15",
-    "talkId": "speaker-小林涼太郎",
-    "speaker": "小林涼太郎",
-    "type": "talk",
-    "note": ""
+    "talkId": "speaker-鷲田樹音",
+    "speaker": "鷲田樹音",
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -350,8 +339,7 @@
     "end": "13:30",
     "talkId": "speaker-山田江里子",
     "speaker": "山田江里子",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -360,18 +348,16 @@
     "end": "13:45",
     "talkId": "speaker-齋藤駿一",
     "speaker": "齋藤駿一",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
     "dateLabel": "5月17日（日）",
     "start": "13:45",
     "end": "14:00",
-    "talkId": "speaker-鷲田樹音",
-    "speaker": "鷲田樹音",
-    "type": "talk",
-    "note": ""
+    "talkId": "speaker-小林涼太郎",
+    "speaker": "小林涼太郎",
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -380,8 +366,7 @@
     "end": "14:15",
     "talkId": "speaker-寺谷嘉泰",
     "speaker": "寺谷嘉泰",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -390,8 +375,7 @@
     "end": "14:30",
     "talkId": "speaker-富田有香",
     "speaker": "富田有香",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -400,8 +384,7 @@
     "end": "14:45",
     "talkId": "speaker-安藤靖",
     "speaker": "安藤靖",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -410,8 +393,7 @@
     "end": "15:00",
     "talkId": "speaker-岡田裕貴",
     "speaker": "岡田裕貴",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -420,8 +402,7 @@
     "end": "15:15",
     "talkId": "speaker-水野竣介",
     "speaker": "水野竣介",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -430,8 +411,7 @@
     "end": "15:30",
     "talkId": "speaker-鷲田樹音",
     "speaker": "鷲田樹音",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -440,8 +420,7 @@
     "end": "15:45",
     "talkId": "speaker-勝間田里菜",
     "speaker": "勝間田里菜",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -450,8 +429,7 @@
     "end": "16:00",
     "talkId": "speaker-豊島慶大",
     "speaker": "豊島慶大",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -460,8 +438,7 @@
     "end": "16:15",
     "talkId": "speaker-富田有香",
     "speaker": "富田有香",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -470,8 +447,7 @@
     "end": "16:30",
     "talkId": "speaker-安藤靖",
     "speaker": "安藤靖",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   },
   {
     "date": "2026-05-17",
@@ -480,7 +456,6 @@
     "end": "16:45",
     "talkId": "speaker-梅村悠介",
     "speaker": "梅村悠介",
-    "type": "talk",
-    "note": ""
+    "type": "talk"
   }
 ]
