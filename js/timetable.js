@@ -85,6 +85,103 @@ function slotContent(item, talkMap) {
   `;
 }
 
+function renderDesktop(schedule, talkMap) {
+  const desktop = document.getElementById("timetable-desktop");
+  if (!desktop) return;
+
+  // 旧版の「2日横並び」テーブルがキャッシュ等で残っていても、ここで必ず置き換える。
+
+  const grouped = groupBy(schedule, (item) => item.date);
+  const days = Object.keys(grouped).map((date) => ({
+    date,
+    label: grouped[date][0].dateLabel
+  }));
+
+  desktop.innerHTML = days.map((day, index) => {
+    const items = grouped[day.date].sort((a, b) =>
+      `${a.start}-${a.end}`.localeCompare(`${b.start}-${b.end}`)
+    );
+
+    const rows = items.map((item) => `
+      <tr>
+        <th>${item.start}–${item.end}</th>
+        <td>${slotContent(item, talkMap)}</td>
+      </tr>
+    `).join("");
+
+    return `
+      <div class="desktop-day-panel" data-date="${day.date}" ${index !== 0 ? "hidden" : ""}>
+        <h3 class="desktop-day-title">${day.label}</h3>
+        <table class="timetable-table timetable-table-enhanced timetable-table-single-day">
+          <thead>
+            <tr>
+              <th>時間</th>
+              <th>講演</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderMobile(schedule, talkMap) {
+  const tabs = document.getElementById("day-tabs");
+  const mobile = document.getElementById("timetable-mobile");
+  if (!tabs || !mobile) return;
+
+  const grouped = groupBy(schedule, (item) => item.date);
+  const days = Object.keys(grouped).map((date) => ({
+    date,
+    label: grouped[date][0].dateLabel
+  }));
+
+  tabs.innerHTML = "";
+  mobile.innerHTML = "";
+
+  days.forEach((day, index) => {
+    const tab = document.createElement("button");
+    tab.type = "button";
+    tab.textContent = day.label;
+    tab.setAttribute("aria-selected", index === 0 ? "true" : "false");
+    tab.dataset.date = day.date;
+    tabs.appendChild(tab);
+
+    const panel = document.createElement("div");
+    panel.className = "mobile-day-panel";
+    panel.dataset.date = day.date;
+    if (index !== 0) panel.hidden = true;
+
+    const items = grouped[day.date].sort((a, b) => `${a.start}-${a.end}`.localeCompare(`${b.start}-${b.end}`));
+    panel.innerHTML = items.map((item) => `
+      <article class="mobile-slot">
+        <div class="mobile-time">${item.start}–${item.end}</div>
+        ${slotContent(item, talkMap)}
+      </article>
+    `).join("");
+
+    mobile.appendChild(panel);
+  });
+
+  tabs.onclick = (event) => {
+    const button = event.target.closest("button[data-date]");
+    if (!button) return;
+
+    tabs.querySelectorAll("button").forEach((btn) => {
+      btn.setAttribute("aria-selected", btn === button ? "true" : "false");
+    });
+
+    mobile.querySelectorAll(".mobile-day-panel").forEach((panel) => {
+      panel.hidden = panel.dataset.date !== button.dataset.date;
+    });
+
+    document.querySelectorAll(".desktop-day-panel").forEach((panel) => {
+      panel.hidden = panel.dataset.date !== button.dataset.date;
+    });
+  };
+}
+
 function setupDetailsToggle() {
   document.addEventListener("click", (event) => {
     const button = event.target.closest(".talk-toggle");
@@ -101,85 +198,6 @@ function setupDetailsToggle() {
   });
 }
 
-
-let timetableState = {
-  schedule: [],
-  talkMap: {},
-  grouped: {},
-  days: [],
-  activeDate: ""
-};
-
-function buildTimetableState(schedule, talkMap) {
-  const grouped = groupBy(schedule, (item) => item.date);
-  const days = Object.keys(grouped)
-    .sort()
-    .map((date) => ({
-      date,
-      label: grouped[date][0].dateLabel
-    }));
-
-  timetableState = {
-    schedule,
-    talkMap,
-    grouped,
-    days,
-    activeDate: days[0] ? days[0].date : ""
-  };
-}
-
-function renderDayTabs() {
-  const tabs = document.getElementById("day-tabs");
-  if (!tabs) return;
-
-  tabs.innerHTML = timetableState.days.map((day) => `
-    <button
-      type="button"
-      data-date="${day.date}"
-      aria-selected="${day.date === timetableState.activeDate ? "true" : "false"}">
-      ${day.label}
-    </button>
-  `).join("");
-
-  tabs.onclick = (event) => {
-    const button = event.target.closest("button[data-date]");
-    if (!button) return;
-
-    timetableState.activeDate = button.dataset.date;
-    renderDayTabs();
-    renderActiveDay();
-  };
-}
-
-function renderActiveDay() {
-  const panel = document.getElementById("timetable-panel");
-  if (!panel) return;
-
-  const day = timetableState.days.find((item) => item.date === timetableState.activeDate);
-  if (!day) {
-    panel.innerHTML = '<p class="section-note placeholder-message">タイムテーブルは現在準備中です。</p>';
-    return;
-  }
-
-  const items = [...(timetableState.grouped[day.date] || [])].sort((a, b) =>
-    `${a.start}-${a.end}`.localeCompare(`${b.start}-${b.end}`)
-  );
-
-  panel.innerHTML = `
-    <h3 class="timetable-panel-title">${day.label}</h3>
-    <div class="timetable-panel-list">
-      ${items.map((item) => `
-        <article class="timetable-panel-slot">
-          <div class="timetable-panel-time">${item.start}–${item.end}</div>
-          <div class="timetable-panel-content">
-            ${slotContent(item, timetableState.talkMap)}
-          </div>
-        </article>
-      `).join("")}
-    </div>
-  `;
-}
-
 async function renderTimetable() {
   try {
     const [talks, schedule] = await Promise.all([
@@ -187,25 +205,16 @@ async function renderTimetable() {
       loadJson("data/schedule.json")
     ]);
 
-    if (!Array.isArray(schedule) || schedule.length === 0) {
-      const panel = document.getElementById("timetable-panel");
-      if (panel) {
-        panel.innerHTML = '<p class="section-note placeholder-message">タイムテーブルは現在準備中です。講演時間が決まり次第、掲載します。</p>';
-      }
-      return;
-    }
-
     schedule.sort((a, b) => `${a.date} ${a.start}`.localeCompare(`${b.date} ${b.start}`));
-    const talkMap = makeTalkMap(Array.isArray(talks) ? talks : []);
+    const talkMap = makeTalkMap(talks);
 
-    buildTimetableState(schedule, talkMap);
-    renderDayTabs();
-    renderActiveDay();
+    renderDesktop(schedule, talkMap);
+    renderMobile(schedule, talkMap);
     setupDetailsToggle();
   } catch (error) {
     console.error(error);
-    const panel = document.getElementById("timetable-panel");
-    if (panel) panel.innerHTML = '<p class="section-note">タイムテーブルを読み込めませんでした。</p>';
+    const desktop = document.getElementById("timetable-desktop");
+    if (desktop) desktop.innerHTML = '<p class="section-note">タイムテーブルを読み込めませんでした。</p>';
   }
 }
 
