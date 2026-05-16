@@ -28,36 +28,33 @@ function durationLabel(item) {
 }
 
 function slotContent(item, talkMap) {
+  if (!item) return "";
+
   const minutes = durationMinutes(item);
   const isLong = minutes >= 45;
-  const isCancelled = item && item.status === "cancelled";
-  const durationClass = `${isLong ? " is-long-slot" : ""}${isCancelled ? " is-cancelled-slot" : ""}`;
-
-  if (!item) {
-    return "";
-  }
+  const isCancelled = item.status === "cancelled";
+  const slotClass = `${isLong ? " is-long-slot" : ""}${isCancelled ? " is-cancelled-slot" : ""}`;
+  const statusBadge = isCancelled ? `<span class="status-badge status-cancelled">${item.statusLabel || "中止"}</span>` : "";
+  const statusNote = item.note ? `<p class="slot-status-note">${item.note}</p>` : "";
 
   if (item.type === "break") {
     return `
-      <div class="slot-card break-slot-card${durationClass}">
+      <div class="slot-card break-slot-card${slotClass}">
         <span class="duration-badge">${durationLabel(item)}</span>
         <div class="break-slot">${item.title || "休憩"}</div>
       </div>
     `;
   }
 
-  const statusBadge = isCancelled ? `<span class="status-badge status-cancelled">${item.statusLabel || "中止"}</span>` : "";
-  const statusNote = item.note ? `<p class="slot-status-note${isCancelled ? "" : " slot-status-note-pending"}">${item.note}</p>` : "";
-
   const talk = talkMap[item.talkId];
   if (!talk) {
     return `
-      <div class="slot-card slot-detail-card${durationClass}">
+      <div class="slot-card slot-detail-card${slotClass}">
         <span class="duration-badge">${durationLabel(item)}</span>
         ${statusBadge}
         <div class="slot-detail-inner">
-          <span class="slot-detail-title">${item.title || "講演タイトル未定"}</span>
-          <span class="slot-detail-speaker"><b>講演者：</b>${item.speaker || "発表者未定"}</span>
+          <span class="slot-detail-title">${item.title || "講演タイトル未設定"}</span>
+          <span class="slot-detail-speaker"><b>講演者：</b>${item.speaker || "発表者未設定"}</span>
           ${statusNote}
           <span class="slot-open-label">${isCancelled ? "中止" : "準備中"}</span>
         </div>
@@ -66,7 +63,7 @@ function slotContent(item, talkMap) {
   }
 
   return `
-    <div class="slot-card slot-detail-card${durationClass}">
+    <div class="slot-card slot-detail-card${slotClass}">
       <span class="duration-badge">${durationLabel(item)}</span>
       ${statusBadge}
       <div class="slot-detail-inner">
@@ -85,24 +82,30 @@ function slotContent(item, talkMap) {
   `;
 }
 
-function renderDesktop(schedule, talkMap) {
+function scheduleDays(schedule) {
+  const grouped = groupBy(schedule, (item) => item.date);
+  return Object.keys(grouped).sort().map((date) => ({
+    date,
+    label: grouped[date][0].dateLabel,
+    items: grouped[date].sort((a, b) => `${a.start}-${a.end}`.localeCompare(`${b.start}-${b.end}`))
+  }));
+}
+
+function renderTabs(days) {
+  const tabs = document.getElementById("day-tabs");
+  if (!tabs) return;
+
+  tabs.innerHTML = days.map((day, index) => `
+    <button type="button" data-date="${day.date}" aria-selected="${index === 0 ? "true" : "false"}">${day.label}</button>
+  `).join("");
+}
+
+function renderDesktop(days, talkMap) {
   const desktop = document.getElementById("timetable-desktop");
   if (!desktop) return;
 
-  // 旧版の「2日横並び」テーブルがキャッシュ等で残っていても、ここで必ず置き換える。
-
-  const grouped = groupBy(schedule, (item) => item.date);
-  const days = Object.keys(grouped).map((date) => ({
-    date,
-    label: grouped[date][0].dateLabel
-  }));
-
   desktop.innerHTML = days.map((day, index) => {
-    const items = grouped[day.date].sort((a, b) =>
-      `${a.start}-${a.end}`.localeCompare(`${b.start}-${b.end}`)
-    );
-
-    const rows = items.map((item) => `
+    const rows = day.items.map((item) => `
       <tr>
         <th>${item.start}–${item.end}</th>
         <td>${slotContent(item, talkMap)}</td>
@@ -110,7 +113,7 @@ function renderDesktop(schedule, talkMap) {
     `).join("");
 
     return `
-      <div class="desktop-day-panel" data-date="${day.date}" ${index !== 0 ? "hidden" : ""}>
+      <div class="desktop-day-panel${index === 0 ? " is-active" : ""}" data-date="${day.date}"${index === 0 ? "" : " hidden"}>
         <h3 class="desktop-day-title">${day.label}</h3>
         <table class="timetable-table timetable-table-enhanced timetable-table-single-day">
           <thead>
@@ -126,60 +129,48 @@ function renderDesktop(schedule, talkMap) {
   }).join("");
 }
 
-function renderMobile(schedule, talkMap) {
-  const tabs = document.getElementById("day-tabs");
+function renderMobile(days, talkMap) {
   const mobile = document.getElementById("timetable-mobile");
-  if (!tabs || !mobile) return;
+  if (!mobile) return;
 
-  const grouped = groupBy(schedule, (item) => item.date);
-  const days = Object.keys(grouped).map((date) => ({
-    date,
-    label: grouped[date][0].dateLabel
-  }));
+  mobile.innerHTML = days.map((day, index) => `
+    <div class="mobile-day-panel${index === 0 ? " is-active" : ""}" data-date="${day.date}"${index === 0 ? "" : " hidden"}>
+      ${day.items.map((item) => `
+        <article class="mobile-slot">
+          <div class="mobile-time">${item.start}–${item.end}</div>
+          ${slotContent(item, talkMap)}
+        </article>
+      `).join("")}
+    </div>
+  `).join("");
+}
 
-  tabs.innerHTML = "";
-  mobile.innerHTML = "";
+function activateDay(date) {
+  const tabs = document.getElementById("day-tabs");
+  if (tabs) {
+    tabs.querySelectorAll("button[data-date]").forEach((button) => {
+      button.setAttribute("aria-selected", button.dataset.date === date ? "true" : "false");
+    });
+  }
 
-  days.forEach((day, index) => {
-    const tab = document.createElement("button");
-    tab.type = "button";
-    tab.textContent = day.label;
-    tab.setAttribute("aria-selected", index === 0 ? "true" : "false");
-    tab.dataset.date = day.date;
-    tabs.appendChild(tab);
-
-    const panel = document.createElement("div");
-    panel.className = "mobile-day-panel";
-    panel.dataset.date = day.date;
-    if (index !== 0) panel.hidden = true;
-
-    const items = grouped[day.date].sort((a, b) => `${a.start}-${a.end}`.localeCompare(`${b.start}-${b.end}`));
-    panel.innerHTML = items.map((item) => `
-      <article class="mobile-slot">
-        <div class="mobile-time">${item.start}–${item.end}</div>
-        ${slotContent(item, talkMap)}
-      </article>
-    `).join("");
-
-    mobile.appendChild(panel);
+  document.querySelectorAll(".desktop-day-panel, .mobile-day-panel").forEach((panel) => {
+    const isActive = panel.dataset.date === date;
+    panel.hidden = !isActive;
+    panel.classList.toggle("is-active", isActive);
   });
+}
 
-  tabs.onclick = (event) => {
+function setupDayTabs(days) {
+  const tabs = document.getElementById("day-tabs");
+  if (!tabs || days.length === 0) return;
+
+  tabs.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-date]");
     if (!button) return;
+    activateDay(button.dataset.date);
+  });
 
-    tabs.querySelectorAll("button").forEach((btn) => {
-      btn.setAttribute("aria-selected", btn === button ? "true" : "false");
-    });
-
-    mobile.querySelectorAll(".mobile-day-panel").forEach((panel) => {
-      panel.hidden = panel.dataset.date !== button.dataset.date;
-    });
-
-    document.querySelectorAll(".desktop-day-panel").forEach((panel) => {
-      panel.hidden = panel.dataset.date !== button.dataset.date;
-    });
-  };
+  activateDay(days[0].date);
 }
 
 function setupDetailsToggle() {
@@ -189,6 +180,8 @@ function setupDetailsToggle() {
 
     const detail = button.parentElement.querySelector(".slot-detail");
     const label = button.querySelector(".slot-open-label");
+    if (!detail) return;
+
     const isOpen = detail.classList.toggle("is-open");
     button.setAttribute("aria-expanded", isOpen ? "true" : "false");
     if (label) {
@@ -207,9 +200,12 @@ async function renderTimetable() {
 
     schedule.sort((a, b) => `${a.date} ${a.start}`.localeCompare(`${b.date} ${b.start}`));
     const talkMap = makeTalkMap(talks);
+    const days = scheduleDays(schedule);
 
-    renderDesktop(schedule, talkMap);
-    renderMobile(schedule, talkMap);
+    renderTabs(days);
+    renderDesktop(days, talkMap);
+    renderMobile(days, talkMap);
+    setupDayTabs(days);
     setupDetailsToggle();
   } catch (error) {
     console.error(error);

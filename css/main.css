@@ -2262,7 +2262,7 @@ body {
 }
 
 /* PC幅でも日付タブを表示し、選択中の日だけを表示する。
-   GitHub Pagesでは古いCSS/JSキャッシュが残りやすいため、timetable.html側で v=20260516-tabs-fix3 を付けて再取得させる。 */
+   GitHub Pagesでは古いCSS/JSキャッシュが残りやすいため、timetable.html側で v=20260517-single-day-v2 を付けて再取得させる。 */
 .page-timetable .day-tabs {
   display: flex;
 }
@@ -2292,4 +2292,40 @@ body {
 .page-timetable .desktop-day-panel[hidden],
 .page-timetable .mobile-day-panel[hidden] {
   display: none !important;
+}
+
+/* PC幅でも日付タブで選択した1日分だけを表示する最終上書き */
+.page-timetable .day-tabs {
+  display: flex !important;
+}
+
+.page-timetable .desktop-day-panel[hidden],
+.page-timetable .mobile-day-panel[hidden],
+.page-timetable .desktop-day-panel:not(.is-active),
+.page-timetable .mobile-day-panel:not(.is-active) {
+  display: none !important;
+}
+
+.page-timetable .desktop-day-panel.is-active {
+  display: block !important;
+}
+
+@media screen and (min-width: 761px) {
+  .page-timetable .timetable-desktop {
+    display: block !important;
+  }
+
+  .page-timetable .timetable-mobile {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .page-timetable .timetable-desktop {
+    display: none !important;
+  }
+
+  .page-timetable .timetable-mobile {
+    display: block !important;
+  }
 }

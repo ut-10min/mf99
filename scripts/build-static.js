@@ -91,7 +91,7 @@ function removeClientJsonScripts(html) {
 
 function addEmbedRuntime(html) {
   if (html.includes("js/embed-runtime.js")) return html;
-  return html.replace("</body>", '  <script src="js/embed-runtime.js" defer></script>\n</body>');
+  return html.replace("</body>", '  <script src="js/embed-runtime.js?v=20260517-single-day-v2" defer></script>\n</body>');
 }
 
 function dateTimeHtml(value) {
@@ -242,11 +242,14 @@ function renderTalks(config, talks, schedule) {
 function slotContent(item, talkMap) {
   if (!item) return "";
 
-  const longClass = durationMinutes(item) >= 50 ? " is-long-slot" : "";
+  const longClass = durationMinutes(item) >= 45 ? " is-long-slot" : "";
+  const cancelledClass = item.status === "cancelled" ? " is-cancelled-slot" : "";
   const badge = `<span class="duration-badge">${durationLabel(item)}</span>`;
+  const statusBadge = item.status === "cancelled" ? `<span class="status-badge status-cancelled">${escapeHtml(item.statusLabel || "中止")}</span>` : "";
+  const statusNote = item.note ? `<p class="slot-status-note">${escapeHtml(item.note)}</p>` : "";
 
   if (item.type === "break") {
-    return `<div class="slot-card break-slot-card${longClass}">
+    return `<div class="slot-card break-slot-card${longClass}${cancelledClass}">
         ${badge}
         <div class="break-slot">${escapeHtml(item.title || "休憩")}</div>
       </div>`;
@@ -255,19 +258,25 @@ function slotContent(item, talkMap) {
   const talk = talkMap[item.talkId];
 
   if (!talk) {
-    return `<div class="slot-card slot-detail-card${longClass}">
+    return `<div class="slot-card slot-detail-card${longClass}${cancelledClass}">
         ${badge}
+        ${statusBadge}
         <div class="break-slot">講演情報未設定</div>
+        ${statusNote}
       </div>`;
   }
 
-  return `<div class="slot-card slot-detail-card${longClass}">
+  const closedLabel = item.status === "cancelled" ? "中止・詳細を開く" : "詳細を開く";
+
+  return `<div class="slot-card slot-detail-card${longClass}${cancelledClass}">
       ${badge}
+      ${statusBadge}
       <div class="slot-detail-inner">
         <button class="talk-toggle" type="button" aria-expanded="false" aria-label="${escapeAttr(talk.title)} の詳細を開く">
           <span class="slot-detail-title">${escapeHtml(talk.title)}</span>
           <span class="slot-detail-speaker"><b>講演者：</b>${escapeHtml(talk.speaker)}</span>
-          <span class="slot-open-label">詳細を開く</span>
+          ${statusNote}
+          <span class="slot-open-label">${closedLabel}</span>
         </button>
         <div class="slot-detail" role="region" aria-label="${escapeAttr(talk.title)} の講演詳細">
           <p class="slot-detail-affiliation"><b>所属・専攻：</b>${escapeHtml(talk.affiliation)}｜${escapeHtml(talk.field)}</p>
@@ -285,43 +294,45 @@ function renderTimetable(config, talks, schedule) {
   const talkMap = Object.fromEntries(talks.map((talk) => [talk.id, talk]));
   const sorted = [...schedule].sort((a, b) => `${a.date} ${a.start}`.localeCompare(`${b.date} ${b.start}`));
 
-  const days = [...new Map(sorted.map((item) => [item.date, item.dateLabel])).entries()];
-  const timeKeys = [...new Set(sorted.map((item) => `${item.start}-${item.end}`))].sort();
-
-  const byDateTime = new Map();
-  for (const item of sorted) {
-    byDateTime.set(`${item.date}|${item.start}-${item.end}`, item);
-  }
-
-  const desktop = `<table class="timetable-table timetable-table-enhanced">
-          <thead>
-            <tr>
-              <th>時間</th>
-              ${days.map(([, label]) => `<th>${escapeHtml(label)}</th>`).join("")}
-            </tr>
-          </thead>
-          <tbody>
-            ${timeKeys.map((timeKey) => `<tr>
-              <th>${escapeHtml(timeKey.replace("-", "–"))}</th>
-              ${days.map(([date]) => `<td>${slotContent(byDateTime.get(`${date}|${timeKey}`), talkMap)}</td>`).join("")}
-            </tr>`).join("")}
-          </tbody>
-        </table>`;
-
   const grouped = new Map();
   for (const item of sorted) {
     if (!grouped.has(item.date)) grouped.set(item.date, []);
     grouped.get(item.date).push(item);
   }
 
-  const mobileDays = [...grouped.entries()].map(([date, items], index) => ({ date, label: items[0].dateLabel, items, index }));
+  const days = [...grouped.entries()].map(([date, items], index) => ({
+    date,
+    label: items[0].dateLabel,
+    items,
+    index
+  }));
 
-  const tabs = mobileDays.map((day) =>
+  const tabs = days.map((day) =>
     `<button type="button" data-date="${escapeAttr(day.date)}" aria-selected="${day.index === 0 ? "true" : "false"}">${escapeHtml(day.label)}</button>`
   ).join("");
 
-  const panels = mobileDays.map((day) =>
-    `<div class="mobile-day-panel" data-date="${escapeAttr(day.date)}"${day.index === 0 ? "" : " hidden"}>
+  const desktop = days.map((day) => {
+    const rows = day.items.map((item) => `<tr>
+              <th>${escapeHtml(item.start)}–${escapeHtml(item.end)}</th>
+              <td>${slotContent(item, talkMap)}</td>
+            </tr>`).join("");
+
+    return `<div class="desktop-day-panel${day.index === 0 ? " is-active" : ""}" data-date="${escapeAttr(day.date)}"${day.index === 0 ? "" : " hidden"}>
+          <h3 class="desktop-day-title">${escapeHtml(day.label)}</h3>
+          <table class="timetable-table timetable-table-enhanced timetable-table-single-day">
+            <thead>
+              <tr>
+                <th>時間</th>
+                <th>講演</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+  }).join("");
+
+  const panels = days.map((day) =>
+    `<div class="mobile-day-panel${day.index === 0 ? " is-active" : ""}" data-date="${escapeAttr(day.date)}"${day.index === 0 ? "" : " hidden"}>
           ${day.items.map((item) => `<article class="mobile-slot">
             <div class="mobile-time">${escapeHtml(item.start)}–${escapeHtml(item.end)}</div>
             ${slotContent(item, talkMap)}
@@ -338,6 +349,18 @@ function renderTimetable(config, talks, schedule) {
 
 function writeEmbedRuntime() {
   const runtime = `document.addEventListener("DOMContentLoaded", function () {
+  function activateDay(date) {
+    document.querySelectorAll("#day-tabs button[data-date]").forEach(function (btn) {
+      btn.setAttribute("aria-selected", btn.dataset.date === date ? "true" : "false");
+    });
+
+    document.querySelectorAll(".desktop-day-panel, .mobile-day-panel").forEach(function (panel) {
+      var isActive = panel.dataset.date === date;
+      panel.hidden = !isActive;
+      panel.classList.toggle("is-active", isActive);
+    });
+  }
+
   document.querySelectorAll("[data-embed]").forEach(function (container) {
     var src = container.getAttribute("data-src");
     if (!src) return;
@@ -363,25 +386,24 @@ function writeEmbedRuntime() {
 
     var detail = button.parentElement.querySelector(".slot-detail");
     var label = button.querySelector(".slot-open-label");
-    var isOpen = detail.classList.toggle("is-open");
+    if (!detail) return;
 
+    var isOpen = detail.classList.toggle("is-open");
     button.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    if (label) label.textContent = isOpen ? "詳細を閉じる" : "詳細を開く";
+    if (label) {
+      var cancelled = button.closest(".is-cancelled-slot");
+      label.textContent = isOpen ? "詳細を閉じる" : (cancelled ? "中止・詳細を開く" : "詳細を開く");
+    }
   });
 
   document.addEventListener("click", function (event) {
     var button = event.target.closest("#day-tabs button[data-date]");
     if (!button) return;
-
-    var tabs = button.parentElement;
-    tabs.querySelectorAll("button").forEach(function (btn) {
-      btn.setAttribute("aria-selected", btn === button ? "true" : "false");
-    });
-
-    document.querySelectorAll("#timetable-mobile .mobile-day-panel").forEach(function (panel) {
-      panel.hidden = panel.dataset.date !== button.dataset.date;
-    });
+    activateDay(button.dataset.date);
   });
+
+  var selected = document.querySelector("#day-tabs button[aria-selected='true']") || document.querySelector("#day-tabs button[data-date]");
+  if (selected) activateDay(selected.dataset.date);
 });
 `;
 
