@@ -2260,3 +2260,36 @@ body {
   color: var(--color-primitive-blue-1200);
   font-weight: normal;
 }
+
+/* PC幅でも日付タブを表示し、選択中の日だけを表示する。
+   GitHub Pagesでは古いCSS/JSキャッシュが残りやすいため、timetable.html側で v=20260516-tabs-fix3 を付けて再取得させる。 */
+.page-timetable .day-tabs {
+  display: flex;
+}
+
+@media screen and (min-width: 761px) {
+  .page-timetable .timetable-desktop {
+    display: block;
+  }
+
+  .page-timetable .timetable-mobile {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .page-timetable .timetable-desktop {
+    display: none;
+  }
+
+  .page-timetable .timetable-mobile {
+    display: block;
+    max-width: 760px;
+    margin: 20px auto 0;
+  }
+}
+
+.page-timetable .desktop-day-panel[hidden],
+.page-timetable .mobile-day-panel[hidden] {
+  display: none !important;
+}

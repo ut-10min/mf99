@@ -89,6 +89,8 @@ function renderDesktop(schedule, talkMap) {
   const desktop = document.getElementById("timetable-desktop");
   if (!desktop) return;
 
+  // 旧版の「2日横並び」テーブルがキャッシュ等で残っていても、ここで必ず置き換える。
+
   const grouped = groupBy(schedule, (item) => item.date);
   const days = Object.keys(grouped).map((date) => ({
     date,
@@ -162,7 +164,7 @@ function renderMobile(schedule, talkMap) {
     mobile.appendChild(panel);
   });
 
-  tabs.addEventListener("click", (event) => {
+  tabs.onclick = (event) => {
     const button = event.target.closest("button[data-date]");
     if (!button) return;
 
@@ -177,7 +179,7 @@ function renderMobile(schedule, talkMap) {
     document.querySelectorAll(".desktop-day-panel").forEach((panel) => {
       panel.hidden = panel.dataset.date !== button.dataset.date;
     });
-  });
+  };
 }
 
 function setupDetailsToggle() {
