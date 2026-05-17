@@ -1,3 +1,11 @@
+const DEFAULT_TIMETABLE_DATE = "2026-05-17";
+
+function getDefaultDate(days) {
+  return days.some((day) => day.date === DEFAULT_TIMETABLE_DATE)
+    ? DEFAULT_TIMETABLE_DATE
+    : (days[0] ? days[0].date : "");
+}
+
 function groupBy(array, keyFn) {
   return array.reduce((acc, item) => {
     const key = keyFn(item);
@@ -91,20 +99,20 @@ function scheduleDays(schedule) {
   }));
 }
 
-function renderTabs(days) {
+function renderTabs(days, activeDate) {
   const tabs = document.getElementById("day-tabs");
   if (!tabs) return;
 
   tabs.innerHTML = days.map((day, index) => `
-    <button type="button" data-date="${day.date}" aria-selected="${index === 0 ? "true" : "false"}">${day.label}</button>
+    <button type="button" data-date="${day.date}" aria-selected="${day.date === activeDate ? "true" : "false"}">${day.label}</button>
   `).join("");
 }
 
-function renderDesktop(days, talkMap) {
+function renderDesktop(days, talkMap, activeDate) {
   const desktop = document.getElementById("timetable-desktop");
   if (!desktop) return;
 
-  desktop.innerHTML = days.map((day, index) => {
+  desktop.innerHTML = days.map((day) => {
     const rows = day.items.map((item) => `
       <tr>
         <th>${item.start}–${item.end}</th>
@@ -113,7 +121,7 @@ function renderDesktop(days, talkMap) {
     `).join("");
 
     return `
-      <div class="desktop-day-panel${index === 0 ? " is-active" : ""}" data-date="${day.date}"${index === 0 ? "" : " hidden"}>
+      <div class="desktop-day-panel${day.date === activeDate ? " is-active" : ""}" data-date="${day.date}"${day.date === activeDate ? "" : " hidden"}>
         <h3 class="desktop-day-title">${day.label}</h3>
         <table class="timetable-table timetable-table-enhanced timetable-table-single-day">
           <thead>
@@ -129,12 +137,12 @@ function renderDesktop(days, talkMap) {
   }).join("");
 }
 
-function renderMobile(days, talkMap) {
+function renderMobile(days, talkMap, activeDate) {
   const mobile = document.getElementById("timetable-mobile");
   if (!mobile) return;
 
-  mobile.innerHTML = days.map((day, index) => `
-    <div class="mobile-day-panel${index === 0 ? " is-active" : ""}" data-date="${day.date}"${index === 0 ? "" : " hidden"}>
+  mobile.innerHTML = days.map((day) => `
+    <div class="mobile-day-panel${day.date === activeDate ? " is-active" : ""}" data-date="${day.date}"${day.date === activeDate ? "" : " hidden"}>
       ${day.items.map((item) => `
         <article class="mobile-slot">
           <div class="mobile-time">${item.start}–${item.end}</div>
@@ -160,7 +168,7 @@ function activateDay(date) {
   });
 }
 
-function setupDayTabs(days) {
+function setupDayTabs(days, activeDate) {
   const tabs = document.getElementById("day-tabs");
   if (!tabs || days.length === 0) return;
 
@@ -170,7 +178,7 @@ function setupDayTabs(days) {
     activateDay(button.dataset.date);
   });
 
-  activateDay(days[0].date);
+  activateDay(activeDate || days[0].date);
 }
 
 function setupDetailsToggle() {
@@ -202,10 +210,11 @@ async function renderTimetable() {
     const talkMap = makeTalkMap(talks);
     const days = scheduleDays(schedule);
 
-    renderTabs(days);
-    renderDesktop(days, talkMap);
-    renderMobile(days, talkMap);
-    setupDayTabs(days);
+    const activeDate = getDefaultDate(days);
+    renderTabs(days, activeDate);
+    renderDesktop(days, talkMap, activeDate);
+    renderMobile(days, talkMap, activeDate);
+    setupDayTabs(days, activeDate);
     setupDetailsToggle();
   } catch (error) {
     console.error(error);

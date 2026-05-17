@@ -3,6 +3,7 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
 const DIST = path.join(ROOT, "dist");
+const DEFAULT_TIMETABLE_DATE = "2026-05-17";
 
 function readText(file) {
   return fs.readFileSync(path.join(ROOT, file), "utf8");
@@ -306,9 +307,12 @@ function renderTimetable(config, talks, schedule) {
     items,
     index
   }));
+  const activeDate = days.some((day) => day.date === DEFAULT_TIMETABLE_DATE)
+    ? DEFAULT_TIMETABLE_DATE
+    : (days[0] ? days[0].date : "");
 
   const tabs = days.map((day) =>
-    `<button type="button" data-date="${escapeAttr(day.date)}" aria-selected="${day.index === 0 ? "true" : "false"}">${escapeHtml(day.label)}</button>`
+    `<button type="button" data-date="${escapeAttr(day.date)}" aria-selected="${day.date === activeDate ? "true" : "false"}">${escapeHtml(day.label)}</button>`
   ).join("");
 
   const desktop = days.map((day) => {
@@ -317,7 +321,7 @@ function renderTimetable(config, talks, schedule) {
               <td>${slotContent(item, talkMap)}</td>
             </tr>`).join("");
 
-    return `<div class="desktop-day-panel${day.index === 0 ? " is-active" : ""}" data-date="${escapeAttr(day.date)}"${day.index === 0 ? "" : " hidden"}>
+    return `<div class="desktop-day-panel${day.date === activeDate ? " is-active" : ""}" data-date="${escapeAttr(day.date)}"${day.date === activeDate ? "" : " hidden"}>
           <h3 class="desktop-day-title">${escapeHtml(day.label)}</h3>
           <table class="timetable-table timetable-table-enhanced timetable-table-single-day">
             <thead>
@@ -332,7 +336,7 @@ function renderTimetable(config, talks, schedule) {
   }).join("");
 
   const panels = days.map((day) =>
-    `<div class="mobile-day-panel${day.index === 0 ? " is-active" : ""}" data-date="${escapeAttr(day.date)}"${day.index === 0 ? "" : " hidden"}>
+    `<div class="mobile-day-panel${day.date === activeDate ? " is-active" : ""}" data-date="${escapeAttr(day.date)}"${day.date === activeDate ? "" : " hidden"}>
           ${day.items.map((item) => `<article class="mobile-slot">
             <div class="mobile-time">${escapeHtml(item.start)}–${escapeHtml(item.end)}</div>
             ${slotContent(item, talkMap)}
